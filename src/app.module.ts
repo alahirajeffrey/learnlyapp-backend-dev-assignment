@@ -7,6 +7,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { config } from './common/config/confg';
 import { APP_GUARD } from '@nestjs/core';
+import { AccountModule } from './account/account.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { APP_GUARD } from '@nestjs/core';
     AuthModule,
     MongooseModule.forRoot(config.MONGO_URI),
     ConfigModule.forRoot({ isGlobal: true }),
+    AccountModule,
   ],
   controllers: [AppController],
   providers: [
