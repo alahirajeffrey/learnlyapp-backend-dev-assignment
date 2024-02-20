@@ -6,9 +6,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Account, AccountSchema } from 'src/schemas/account.schema';
 import { User, UserSchema } from 'src/schemas/user.schema';
 import { Transaction, TransactionSchema } from 'src/schemas/transaction.schema';
+import { UtilService } from 'src/common/utils/utils.utils';
 
 @Module({
-  providers: [AccountService],
+  providers: [AccountService, UtilService],
   controllers: [AccountController],
   imports: [
     JwtModule.register({}),
