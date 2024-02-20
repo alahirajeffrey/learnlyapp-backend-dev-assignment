@@ -16,6 +16,9 @@ export class Account {
   balance: number;
 
   @Prop({ required: true })
+  accountNumber: string;
+
+  @Prop({ required: true })
   email: string;
 }
 
