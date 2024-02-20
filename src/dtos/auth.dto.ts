@@ -72,3 +72,11 @@ export class ChangePasswordDto {
   @ApiProperty()
   newPassword: string;
 }
+
+export class UpgradeUserRoleDto {
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  @ApiProperty()
+  email: string;
+}
