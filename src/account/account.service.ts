@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ApiResponse } from 'src/common/types/response.type';
 import { UtilService } from 'src/common/utils/utils.utils';
+import { PaginationDto } from 'src/dtos/pagination.dto';
 import { Account } from 'src/schemas/account.schema';
 import { Transaction } from 'src/schemas/transaction.schema';
 
@@ -52,9 +53,11 @@ export class AccountService {
     }
   }
 
-  async getOwnAccountTransactions(email: string): Promise<ApiResponse> {
+  async getOwnAccountTransactions(
+    email: string,
+    dto: PaginationDto,
+  ): Promise<ApiResponse> {
     try {
-      // todo: paginate result
       // get account details via email
       const account = await this.accountModel.findOne({ email });
       if (!account) {
@@ -64,12 +67,22 @@ export class AccountService {
         );
       }
 
-      // search for transactions via account number
-      const transactions = await this.transactionModel.find({
-        primaryAccountNumber: account.accountNumber,
-      });
+      // paginate result
+      const count = await this.transactionModel.countDocuments({}).exec();
+      const pageTotal = Math.floor((count - 1) / dto.limit) + 1;
 
-      return { statusCode: HttpStatus.OK, data: transactions };
+      // search for transactions via account number
+      const transactions = await this.transactionModel
+        .find({
+          primaryAccountNumber: account.accountNumber,
+        })
+        .limit(dto.limit)
+        .skip(dto.skip);
+
+      return {
+        statusCode: HttpStatus.OK,
+        data: { transactions, pageTotal: pageTotal },
+      };
     } catch (error) {
       throw new HttpException(
         error.message,
@@ -80,15 +93,31 @@ export class AccountService {
 
   async getOtherAccountTransactions(
     accountNumber: string,
+    dto: PaginationDto,
   ): Promise<ApiResponse> {
     try {
-      // todo: paginate result
-      // search for transactions via account number
-      const transactions = await this.transactionModel.find({
-        primaryAccountNumber: accountNumber,
-      });
+      // check if account exists
+      const account = await this.accountModel.findOne({ accountNumber });
+      if (!account) {
+        throw new HttpException('Account does not exist', HttpStatus.NOT_FOUND);
+      }
 
-      return { statusCode: HttpStatus.OK, data: transactions };
+      // paginate result
+      const count = await this.transactionModel.countDocuments({}).exec();
+      const pageTotal = Math.floor((count - 1) / dto.limit) + 1;
+
+      // search for transactions via account number
+      const transactions = await this.transactionModel
+        .find({
+          primaryAccountNumber: accountNumber,
+        })
+        .limit(dto.limit)
+        .skip(dto.skip);
+
+      return {
+        statusCode: HttpStatus.OK,
+        data: { transactions, pageTotal: pageTotal },
+      };
     } catch (error) {
       throw new HttpException(
         error.message,
