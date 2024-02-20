@@ -1,7 +1,14 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { LoginUserDto, RegisterUserDto } from 'src/dtos/auth.dto';
+import {
+  ChangePasswordDto,
+  LoginUserDto,
+  RegisterUserDto,
+  UpdateUserDto,
+  UpgradeUserRoleDto,
+} from 'src/dtos/auth.dto';
+import { AuthGaurd } from './guards/authentication.guard';
 
 @ApiTags('auth-endpoints')
 @Controller('auth')
@@ -18,5 +25,30 @@ export class AuthController {
   @ApiOperation({ summary: 'Log a user in' })
   loginUser(@Body() dto: LoginUserDto) {
     return this.authService.loginUser(dto);
+  }
+
+  @UseGuards(AuthGaurd)
+  @ApiSecurity('JWT-auth')
+  @Patch('change-password')
+  @ApiOperation({ summary: 'Change user password' })
+  changePassword(@Req() req, @Body() dto: ChangePasswordDto) {
+    return this.authService.changePassword(req.user.email, dto);
+  }
+
+  @UseGuards(AuthGaurd)
+  @ApiSecurity('JWT-auth')
+  @Patch('update-user')
+  @ApiOperation({ summary: 'update user details' })
+  updateUser(@Req() req, @Body() dto: UpdateUserDto) {
+    return this.authService.updateUser(req.user.email, dto);
+  }
+
+  // use a roles guards
+  @UseGuards(AuthGaurd)
+  @ApiSecurity('JWT-auth')
+  @Patch('upgrade-user')
+  @ApiOperation({ summary: 'upgrade user to admin' })
+  upgradeUserToAdmin(@Req() req, @Body() dto: UpgradeUserRoleDto) {
+    return this.authService.upgradeUserToAdmin(req.user.email, dto);
   }
 }
