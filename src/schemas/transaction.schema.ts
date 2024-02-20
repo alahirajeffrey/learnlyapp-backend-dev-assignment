@@ -20,10 +20,10 @@ export class Transaction {
   amount: number;
 
   @Prop({})
-  primaryAccountId: number;
+  primaryAccountNumber: string;
 
   @Prop({})
-  SecondaryAccountId: number;
+  SecondaryAccountNumber: string;
 }
 
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);
