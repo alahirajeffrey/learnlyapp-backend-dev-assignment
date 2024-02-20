@@ -82,7 +82,7 @@ export class UpgradeUserRoleDto {
   email: string;
 }
 
-export class UpdateUser {
+export class UpdateUserDto {
   @IsString()
   @IsOptional()
   @ApiProperty()
