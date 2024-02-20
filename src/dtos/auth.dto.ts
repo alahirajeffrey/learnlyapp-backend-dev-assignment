@@ -47,3 +47,16 @@ export class RegisterUserDto {
   })
   password: string;
 }
+
+export class LoginUser {
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  @ApiProperty()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  password: string;
+}
