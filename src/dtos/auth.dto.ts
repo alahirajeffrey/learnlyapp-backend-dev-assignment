@@ -48,7 +48,7 @@ export class RegisterUserDto {
   password: string;
 }
 
-export class LoginUser {
+export class LoginUserDto {
   @IsString()
   @IsNotEmpty()
   @IsEmail()
@@ -59,4 +59,16 @@ export class LoginUser {
   @IsNotEmpty()
   @ApiProperty()
   password: string;
+}
+
+export class ChangePasswordDto {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  oldPassword: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  newPassword: string;
 }
