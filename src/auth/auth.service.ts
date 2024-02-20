@@ -9,9 +9,11 @@ import {
   LoginUserDto,
   RegisterUserDto,
   UpdateUserDto,
+  UpgradeUserRoleDto,
 } from 'src/dtos/auth.dto';
 import { User } from 'src/schemas/user.schema';
 import * as bcrypt from 'bcrypt';
+import { Role } from 'src/common/enums/roles.enum';
 
 @Injectable()
 export class AuthService {
@@ -137,6 +139,12 @@ export class AuthService {
     }
   }
 
+  /**
+   * update a user's details
+   * @param email : user email
+   * @param dto : firstName, lastName, mobileNumber
+   * @returns : status code and message
+   */
   async updateUser(email: string, dto: UpdateUserDto): Promise<ApiResponse> {
     try {
       // get user details
@@ -159,5 +167,39 @@ export class AuthService {
     }
   }
 
-  async upgradeUserToAdmin(): Promise<ApiResponse> {}
+  /**
+   * upgrade a user to admin
+   * @param email : admin's email
+   * @param dto : email of user
+   * @returns : status code and message
+   */
+  async upgradeUserToAdmin(
+    email: string,
+    dto: UpgradeUserRoleDto,
+  ): Promise<ApiResponse> {
+    try {
+      // get user details
+      const user = await this.userModel.findOne({ email: email });
+
+      // check if user is an admin
+      if (user.role !== Role.Admin) {
+        throw new HttpException(
+          'Only admins can upgrade users',
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+
+      await this.userModel.findOneAndUpdate(
+        { email: dto.email },
+        { role: Role.Admin },
+      );
+
+      return { statusCode: HttpStatus.OK, message: 'User upgraded to admin' };
+    } catch (error) {
+      throw new HttpException(
+        error.message,
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }
