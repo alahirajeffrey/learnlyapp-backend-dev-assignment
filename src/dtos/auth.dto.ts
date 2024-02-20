@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Matches,
   MaxLength,
@@ -79,4 +80,21 @@ export class UpgradeUserRoleDto {
   @IsEmail()
   @ApiProperty()
   email: string;
+}
+
+export class UpdateUser {
+  @IsString()
+  @IsOptional()
+  @ApiProperty()
+  firstName: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty()
+  mobileNumber: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty()
+  lastName: string;
 }
