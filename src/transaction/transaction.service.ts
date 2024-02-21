@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { DepositAndWithdrawalDto, TransferDto } from 'src/dtos/transaction.dto';
@@ -99,7 +94,7 @@ export class TransactionService {
 
       // check if sender has sufficient balance
       if (senderAccountDetails.balance < dto.amount) {
-        throw new BadRequestException('Insufficient balance');
+        throw new HttpException('Insufficient balance', HttpStatus.BAD_REQUEST);
       }
 
       //deduct amount from sender
@@ -165,7 +160,9 @@ export class TransactionService {
 
       // update account balance
       await this.accountModel
-        .findByIdAndUpdate(accountDetails._id, { balance: -dto.amount })
+        .findByIdAndUpdate(accountDetails._id, {
+          $inc: { balance: -dto.amount },
+        })
         .session(session);
 
       // save withdrawal details
