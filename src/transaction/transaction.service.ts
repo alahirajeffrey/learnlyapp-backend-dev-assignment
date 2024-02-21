@@ -9,13 +9,17 @@ import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { DepositAndWithdrawalDto, TransferDto } from 'src/dtos/transaction.dto';
 import { Account } from 'src/schemas/account.schema';
-import { Transaction } from 'src/schemas/transaction.schema';
+import { Deposit } from 'src/schemas/deposit.schema';
+import { Transfer } from 'src/schemas/transfer.schema';
+import { Withdrawal } from 'src/schemas/withdrawal.schema';
 
 @Injectable()
 export class TransactionService {
   constructor(
     @InjectModel(Account.name) private accountModel: Model<Account>,
-    @InjectModel(Transaction.name) private transactionModel: Model<Transaction>,
+    @InjectModel(Deposit.name) private depositModel: Model<Deposit>,
+    @InjectModel(Transfer.name) private transferModel: Model<Transfer>,
+    @InjectModel(Withdrawal.name) private withdrawalModel: Model<Withdrawal>,
     @InjectConnection() private readonly connection: mongoose.Connection,
   ) {}
 
@@ -40,6 +44,12 @@ export class TransactionService {
           $inc: { balance: +dto.amount },
         })
         .session(session);
+
+      // save deposit details
+      await this.depositModel.create({
+        amount: dto.amount,
+        account: accountDetails._id,
+      });
 
       // commit transaction if successful
       await session.commitTransaction();
@@ -104,6 +114,13 @@ export class TransactionService {
         })
         .session(session);
 
+      // save transfer details
+      await this.transferModel.create({
+        senderAccount: senderAccountDetails._id,
+        recieverAccount: recieverAccountDetails._id,
+        amount: dto.amount,
+      });
+
       // commit transaction if successful
       await session.commitTransaction();
 
@@ -123,6 +140,12 @@ export class TransactionService {
     }
   }
 
+  /**
+   * withdraw funds
+   * @param email : user's email
+   * @param dto : amount to withdraw
+   * @returns : message
+   */
   async withdrawFunds(email: string, dto: DepositAndWithdrawalDto) {
     const session = await this.connection.startSession();
     try {
@@ -141,6 +164,12 @@ export class TransactionService {
       await this.accountModel
         .findByIdAndUpdate(accountDetails._id, { balance: -dto.amount })
         .session(session);
+
+      // save withdrawal details
+      await this.withdrawalModel.create({
+        account: accountDetails._id,
+        amount: dto.amount,
+      });
 
       // commit transaction if successful
       await session.commitTransaction();
