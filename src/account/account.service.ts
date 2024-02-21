@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UtilService } from 'src/common/utils/utils.utils';
@@ -14,7 +19,7 @@ export class AccountService {
     @InjectModel(Account.name) private accountModel: Model<Account>,
     @InjectModel(Deposit.name) private depositModel: Model<Deposit>,
     @InjectModel(Withdrawal.name) private withdrawalModel: Model<Withdrawal>,
-    @InjectModel(Transfer.name) private transfertModel: Model<Transfer>,
+    @InjectModel(Transfer.name) private transferModel: Model<Transfer>,
     private readonly utilService: UtilService,
   ) {}
 
@@ -79,7 +84,9 @@ export class AccountService {
       }
 
       // paginate result
-      const count = await this.depositModel.countDocuments({}).exec();
+      const count = await this.depositModel
+        .countDocuments({ account: account._id })
+        .exec();
       const pageTotal = Math.floor((count - 1) / dto.limit) + 1;
 
       // search for transactions via account number
@@ -120,7 +127,9 @@ export class AccountService {
       }
 
       // paginate result
-      const count = await this.depositModel.countDocuments({}).exec();
+      const count = await this.withdrawalModel
+        .countDocuments({ account: account._id })
+        .exec();
       const pageTotal = Math.floor((count - 1) / dto.limit) + 1;
 
       // search for transactions via account number
@@ -135,6 +144,45 @@ export class AccountService {
         withdrawals,
         pageTotal: pageTotal,
       };
+    } catch (error) {
+      throw new HttpException(
+        error.message,
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async getAccountTransfers(email: string, dto: PaginationDto) {
+    try {
+      // get account details via email
+      const account = await this.accountModel.findOne({ email });
+      if (!account) {
+        throw new NotFoundException('User is yet to create an account');
+      }
+
+      // paginate result
+      const count = await this.transferModel
+        .countDocuments({
+          $or: [
+            { senderAccount: account._id },
+            { receiverAccount: account._id },
+          ],
+        })
+        .exec();
+      const pageTotal = Math.floor((count - 1) / dto.limit) + 1;
+
+      // search for transactions via account number
+      const transfers = await this.transferModel
+        .find({
+          $or: [
+            { senderAccount: account._id },
+            { receiverAccount: account._id },
+          ],
+        })
+        .limit(dto.limit)
+        .skip(dto.skip);
+
+      return { transfers, pageTotal: pageTotal };
     } catch (error) {
       throw new HttpException(
         error.message,
