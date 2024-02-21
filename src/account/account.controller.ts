@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from 'src/dtos/pagination.dto';
@@ -21,19 +21,15 @@ export class AccountController {
     return this.accountService.getOwnAccountDetails(req.user.email);
   }
 
-  // protect with admin roles guard
-  @Get('transactions/other/:accountNumber')
-  @ApiOperation({ summary: 'Get other`s account transactions' })
-  getOtherAccountTransactions(
-    @Param('accountNumber') accountNumber: string,
-    @Body() dto: PaginationDto,
-  ) {
-    return this.accountService.getOtherAccountTransactions(accountNumber, dto);
+  @Get('deposits')
+  @ApiOperation({ summary: 'Get account deposits ' })
+  getAccountDeposits(@Req() req, @Body() dto: PaginationDto) {
+    return this.accountService.getAccountDeposits(req.user.email, dto);
   }
 
-  @Get('transactions/own')
-  @ApiOperation({ summary: 'Get own account transactions' })
-  getOwnAccountTransactions(@Req() req, dto: PaginationDto) {
-    return this.accountService.getOwnAccountTransactions(req.user.email, dto);
+  @Get('withdrawals')
+  @ApiOperation({ summary: 'Get account withdrawals ' })
+  getAccountWithdrawals(@Req() req, @Body() dto: PaginationDto) {
+    return this.accountService.getAccountWithdrawals(req.user.email, dto);
   }
 }
