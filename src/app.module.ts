@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -25,9 +23,8 @@ import { TransactionModule } from './transaction/transaction.module';
     AccountModule,
     TransactionModule,
   ],
-  controllers: [AppController],
+  controllers: [],
   providers: [
-    AppService,
     // bind rate limiter guard globally
     { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
