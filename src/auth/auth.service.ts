@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ApiResponse } from 'src/common/types/response.type';
 import {
   ChangePasswordDto,
   LoginUserDto,
@@ -28,7 +27,7 @@ export class AuthService {
    * @param dto : lastName, firstName, email, password
    * @returns : status code and user object
    */
-  async registerUser(dto: RegisterUserDto): Promise<ApiResponse> {
+  async registerUser(dto: RegisterUserDto) {
     try {
       // check if user already exists
       const userExists = await this.userModel.findOne({ email: dto.email });
@@ -45,7 +44,7 @@ export class AuthService {
         ...dto,
       });
 
-      return { statusCode: HttpStatus.CREATED, data: newUser };
+      return newUser;
     } catch (error) {
       throw new HttpException(
         error.message,
@@ -59,7 +58,7 @@ export class AuthService {
    * @param dto : email and password
    * @returns : status code and access token
    */
-  async loginUser(dto: LoginUserDto): Promise<ApiResponse> {
+  async loginUser(dto: LoginUserDto) {
     try {
       // check if user already exists
       const userExists = await this.userModel.findOne({ email: dto.email });
@@ -104,10 +103,7 @@ export class AuthService {
    * @param dto : cold password, new password
    * @returns : status code and message
    */
-  async changePassword(
-    email: string,
-    dto: ChangePasswordDto,
-  ): Promise<ApiResponse> {
+  async changePassword(email: string, dto: ChangePasswordDto) {
     try {
       // get user details
       const user = await this.userModel.findOne({ email: email });
@@ -145,7 +141,7 @@ export class AuthService {
    * @param dto : firstName, lastName, mobileNumber
    * @returns : status code and message
    */
-  async updateUser(email: string, dto: UpdateUserDto): Promise<ApiResponse> {
+  async updateUser(email: string, dto: UpdateUserDto) {
     try {
       // get user details
       const user = await this.userModel.findOne({ email: email });
@@ -173,10 +169,7 @@ export class AuthService {
    * @param dto : email of user
    * @returns : status code and message
    */
-  async upgradeUserToAdmin(
-    email: string,
-    dto: UpgradeUserRoleDto,
-  ): Promise<ApiResponse> {
+  async upgradeUserToAdmin(email: string, dto: UpgradeUserRoleDto) {
     try {
       // get user details
       const user = await this.userModel.findOne({ email: email });
