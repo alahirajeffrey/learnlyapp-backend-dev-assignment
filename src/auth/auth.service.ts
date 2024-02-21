@@ -38,10 +38,12 @@ export class AuthService {
         );
       }
 
+      const hashedPassword = await bcrypt.hash(dto.password, 12);
+
       // create user
       const newUser = await this.userModel.create({
-        password: await bcrypt.hash(dto.password, 10),
         ...dto,
+        password: hashedPassword,
       });
 
       return newUser;
