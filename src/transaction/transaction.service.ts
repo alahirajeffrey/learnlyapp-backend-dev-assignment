@@ -3,7 +3,6 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
-  NotFoundException,
 } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
@@ -31,11 +30,12 @@ export class TransactionService {
    */
   async depositFunds(email: string, dto: DepositAndWithdrawalDto) {
     const session = await this.connection.startSession();
+    session.startTransaction();
     try {
       // get account details
       const accountDetails = await this.accountModel.findOne({ email });
       if (!accountDetails) {
-        throw new NotFoundException();
+        throw new HttpException('Account does not exist', HttpStatus.NOT_FOUND);
       }
 
       // update account balance
@@ -78,11 +78,12 @@ export class TransactionService {
    */
   async transferFunds(email: string, dto: TransferDto) {
     const session = await this.connection.startSession();
+    session.startTransaction();
     try {
       // get sender account details
       const senderAccountDetails = await this.accountModel.findOne({ email });
       if (!senderAccountDetails) {
-        throw new NotFoundException();
+        throw new HttpException('Account does not exist', HttpStatus.NOT_FOUND);
       }
 
       // get reciever account details
@@ -90,14 +91,15 @@ export class TransactionService {
         accountNumber: dto.accountNumber,
       });
       if (!recieverAccountDetails) {
-        throw new NotFoundException("Reciever's account does not exist ");
+        throw new HttpException(
+          'Reciever does not exist',
+          HttpStatus.NOT_FOUND,
+        );
       }
 
       // check if sender has sufficient balance
       if (senderAccountDetails.balance < dto.amount) {
-        if (!recieverAccountDetails) {
-          throw new BadRequestException('Insufficient balance');
-        }
+        throw new BadRequestException('Insufficient balance');
       }
 
       //deduct amount from sender
@@ -148,16 +150,17 @@ export class TransactionService {
    */
   async withdrawFunds(email: string, dto: DepositAndWithdrawalDto) {
     const session = await this.connection.startSession();
+    session.startTransaction();
     try {
       // get account details
       const accountDetails = await this.accountModel.findOne({ email });
       if (!accountDetails) {
-        throw new NotFoundException();
+        throw new HttpException('Account does not exist', HttpStatus.NOT_FOUND);
       }
 
       // check if balance is sufficient
       if (accountDetails.balance < dto.amount) {
-        throw new BadRequestException('Insufficient balance');
+        throw new HttpException('Insufficient balance', HttpStatus.BAD_REQUEST);
       }
 
       // update account balance
