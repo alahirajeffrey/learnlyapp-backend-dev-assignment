@@ -100,14 +100,14 @@ export class TransactionService {
       //deduct amount from sender
       await this.accountModel
         .findByIdAndUpdate(senderAccountDetails._id, {
-          balance: -dto.amount,
+          balance: senderAccountDetails.balance - dto.amount,
         })
         .session(session);
 
       // increase reciever balance
       await this.accountModel
         .findByIdAndUpdate(recieverAccountDetails._id, {
-          $inc: { balance: +dto.amount },
+          balance: recieverAccountDetails.balance + dto.amount,
         })
         .session(session);
 
@@ -161,7 +161,7 @@ export class TransactionService {
       // update account balance
       await this.accountModel
         .findByIdAndUpdate(accountDetails._id, {
-          $inc: { balance: -dto.amount },
+          balance: accountDetails.balance - dto.amount,
         })
         .session(session);
 
