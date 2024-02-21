@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { config } from './common/config/confg';
 import { APP_GUARD } from '@nestjs/core';
 import { AccountModule } from './account/account.module';
+import { TransactionModule } from './transaction/transaction.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AccountModule } from './account/account.module';
     MongooseModule.forRoot(config.MONGO_URI),
     ConfigModule.forRoot({ isGlobal: true }),
     AccountModule,
+    TransactionModule,
   ],
   controllers: [AppController],
   providers: [
