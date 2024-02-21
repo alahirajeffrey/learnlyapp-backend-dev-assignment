@@ -1,8 +1,10 @@
-import { Body, Controller, Get, Post, Req } from '@nestjs/common';
+import { Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from 'src/dtos/pagination.dto';
+import { AuthGaurd } from 'src/auth/guards/authentication.guard';
 
+@UseGuards(AuthGaurd)
 @ApiSecurity('JWT-auth')
 @ApiTags('account-endpoints')
 @Controller('account')
@@ -23,13 +25,19 @@ export class AccountController {
 
   @Get('deposits')
   @ApiOperation({ summary: 'Get account deposits ' })
-  getAccountDeposits(@Req() req, @Body() dto: PaginationDto) {
+  getAccountDeposits(@Req() req, @Query() dto: PaginationDto) {
     return this.accountService.getAccountDeposits(req.user.email, dto);
   }
 
   @Get('withdrawals')
   @ApiOperation({ summary: 'Get account withdrawals ' })
-  getAccountWithdrawals(@Req() req, @Body() dto: PaginationDto) {
+  getAccountWithdrawals(@Req() req, @Query() dto: PaginationDto) {
     return this.accountService.getAccountWithdrawals(req.user.email, dto);
+  }
+
+  @Get('transfers')
+  @ApiOperation({ summary: 'Get account transfers ' })
+  getAccountTransfers(@Req() req, @Query() dto: PaginationDto) {
+    return this.accountService.getAccountTransfers(req.user.email, dto);
   }
 }
