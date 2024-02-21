@@ -1,17 +1,20 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ApiResponse } from 'src/common/types/response.type';
 import { UtilService } from 'src/common/utils/utils.utils';
 import { PaginationDto } from 'src/dtos/pagination.dto';
 import { Account } from 'src/schemas/account.schema';
-import { Transaction } from 'src/schemas/transaction.schema';
+import { Deposit } from 'src/schemas/deposit.schema';
+import { Transfer } from 'src/schemas/transfer.schema';
+import { Withdrawal } from 'src/schemas/withdrawal.schema';
 
 @Injectable()
 export class AccountService {
   constructor(
     @InjectModel(Account.name) private accountModel: Model<Account>,
-    @InjectModel(Transaction.name) private transactionModel: Model<Transaction>,
+    @InjectModel(Deposit.name) private depositModel: Model<Deposit>,
+    @InjectModel(Withdrawal.name) private withdrawalModel: Model<Withdrawal>,
+    @InjectModel(Transfer.name) private transfertModel: Model<Transfer>,
     private readonly utilService: UtilService,
   ) {}
 
@@ -20,7 +23,7 @@ export class AccountService {
    * @param email
    * @returns
    */
-  async createAccount(email: string): Promise<ApiResponse> {
+  async createAccount(email: string) {
     try {
       // generate account number
       const accountNumber = this.utilService.generateAccountNumber();
@@ -40,11 +43,16 @@ export class AccountService {
     }
   }
 
-  async getOwnAccountDetails(email: string): Promise<ApiResponse> {
+  /**
+   * get own acount detials
+   * @param email : user's email
+   * @returns : account details
+   */
+  async getOwnAccountDetails(email: string) {
     try {
       const account = await this.accountModel.findOne({ email });
 
-      return { statusCode: HttpStatus.OK, data: account };
+      return account;
     } catch (error) {
       throw new HttpException(
         error.message,
@@ -53,10 +61,13 @@ export class AccountService {
     }
   }
 
-  async getOwnAccountTransactions(
-    email: string,
-    dto: PaginationDto,
-  ): Promise<ApiResponse> {
+  /**
+   * get own account deposits
+   * @param email : user's email
+   * @param dto : pagination dto (skip and limit)
+   * @returns : list of deposits and page total
+   */
+  async getAccountDeposits(email: string, dto: PaginationDto) {
     try {
       // get account details via email
       const account = await this.accountModel.findOne({ email });
@@ -68,20 +79,20 @@ export class AccountService {
       }
 
       // paginate result
-      const count = await this.transactionModel.countDocuments({}).exec();
+      const count = await this.depositModel.countDocuments({}).exec();
       const pageTotal = Math.floor((count - 1) / dto.limit) + 1;
 
       // search for transactions via account number
-      const transactions = await this.transactionModel
+      const deposits = await this.depositModel
         .find({
-          primaryAccountNumber: account.accountNumber,
+          account: account._id,
         })
         .limit(dto.limit)
         .skip(dto.skip);
 
       return {
-        statusCode: HttpStatus.OK,
-        data: { transactions, pageTotal: pageTotal },
+        deposits,
+        pageTotal: pageTotal,
       };
     } catch (error) {
       throw new HttpException(
@@ -91,32 +102,38 @@ export class AccountService {
     }
   }
 
-  async getOtherAccountTransactions(
-    accountNumber: string,
-    dto: PaginationDto,
-  ): Promise<ApiResponse> {
+  /**
+   * get own account withdrawals
+   * @param email : user's email
+   * @param dto : pagination dto (skip and limit)
+   * @returns : list of deposits and page total
+   */
+  async getAccountWithdrawals(email: string, dto: PaginationDto) {
     try {
-      // check if account exists
-      const account = await this.accountModel.findOne({ accountNumber });
+      // get account details via email
+      const account = await this.accountModel.findOne({ email });
       if (!account) {
-        throw new HttpException('Account does not exist', HttpStatus.NOT_FOUND);
+        throw new HttpException(
+          'User is yet to create an account',
+          HttpStatus.NOT_FOUND,
+        );
       }
 
       // paginate result
-      const count = await this.transactionModel.countDocuments({}).exec();
+      const count = await this.depositModel.countDocuments({}).exec();
       const pageTotal = Math.floor((count - 1) / dto.limit) + 1;
 
       // search for transactions via account number
-      const transactions = await this.transactionModel
+      const withdrawals = await this.withdrawalModel
         .find({
-          primaryAccountNumber: accountNumber,
+          account: account._id,
         })
         .limit(dto.limit)
         .skip(dto.skip);
 
       return {
-        statusCode: HttpStatus.OK,
-        data: { transactions, pageTotal: pageTotal },
+        withdrawals,
+        pageTotal: pageTotal,
       };
     } catch (error) {
       throw new HttpException(
