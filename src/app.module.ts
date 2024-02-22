@@ -7,6 +7,8 @@ import { config } from './common/config/confg';
 import { APP_GUARD } from '@nestjs/core';
 import { AccountModule } from './account/account.module';
 import { TransactionModule } from './transaction/transaction.module';
+import { WinstonModule } from 'nest-winston';
+import * as winston from 'winston';
 
 @Module({
   imports: [
@@ -22,6 +24,22 @@ import { TransactionModule } from './transaction/transaction.module';
     ConfigModule.forRoot({ isGlobal: true }),
     AccountModule,
     TransactionModule,
+    WinstonModule.forRoot({
+      // options
+      transports: [
+        new winston.transports.Console({}),
+        new winston.transports.File({
+          dirname: 'logs',
+          filename: 'logs.log',
+        }),
+      ],
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.printf(({ timestamp, level, message }) => {
+          return `[${timestamp} ${level}: ${message}]`;
+        }),
+      ),
+    }),
   ],
   controllers: [],
   providers: [
