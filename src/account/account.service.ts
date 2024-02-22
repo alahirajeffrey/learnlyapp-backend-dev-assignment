@@ -6,12 +6,12 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { UtilService } from 'src/common/utils/utils.utils';
-import { PaginationDto } from 'src/dtos/pagination.dto';
-import { Account } from 'src/schemas/account.schema';
-import { Deposit } from 'src/schemas/deposit.schema';
-import { Transfer } from 'src/schemas/transfer.schema';
-import { Withdrawal } from 'src/schemas/withdrawal.schema';
+import { UtilService } from '../common/utils/utils.utils';
+import { PaginationDto } from '../dtos/pagination.dto';
+import { Account } from '../schemas/account.schema';
+import { Deposit } from '../schemas/deposit.schema';
+import { Transfer } from '../schemas/transfer.schema';
+import { Withdrawal } from '../schemas/withdrawal.schema';
 
 @Injectable()
 export class AccountService {

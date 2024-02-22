@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
-import { PaginationDto } from 'src/dtos/pagination.dto';
-import { AuthGaurd } from 'src/auth/guards/authentication.guard';
+import { PaginationDto } from '../dtos/pagination.dto';
+import { AuthGaurd } from '../auth/guards/authentication.guard';
 
 @UseGuards(AuthGaurd)
 @ApiSecurity('JWT-auth')

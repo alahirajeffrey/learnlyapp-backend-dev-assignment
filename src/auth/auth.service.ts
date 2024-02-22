@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+// import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -10,15 +10,15 @@ import {
   UpdateUserDto,
   UpgradeUserRoleDto,
 } from 'src/dtos/auth.dto';
-import { User } from 'src/schemas/user.schema';
+import { User } from '../schemas/user.schema';
 import * as bcrypt from 'bcrypt';
-import { Role } from 'src/common/enums/roles.enum';
+import { Role } from '../common/enums/roles.enum';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
-    private readonly configService: ConfigService,
+    // private readonly configService: ConfigService,
     private jwtService: JwtService,
   ) {}
 

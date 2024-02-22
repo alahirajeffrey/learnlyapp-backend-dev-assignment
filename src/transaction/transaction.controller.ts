@@ -1,8 +1,8 @@
 import { Body, Controller, Patch, Req, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { TransactionService } from './transaction.service';
-import { DepositAndWithdrawalDto, TransferDto } from 'src/dtos/transaction.dto';
-import { AuthGaurd } from 'src/auth/guards/authentication.guard';
+import { DepositAndWithdrawalDto, TransferDto } from '../dtos/transaction.dto';
+import { AuthGaurd } from '../auth/guards/authentication.guard';
 
 @UseGuards(AuthGaurd)
 @ApiSecurity('JWT-auth')

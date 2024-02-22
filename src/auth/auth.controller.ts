@@ -7,7 +7,7 @@ import {
   RegisterUserDto,
   UpdateUserDto,
   UpgradeUserRoleDto,
-} from 'src/dtos/auth.dto';
+} from '../dtos/auth.dto';
 import { AuthGaurd } from './guards/authentication.guard';
 
 @ApiTags('auth-endpoints')
