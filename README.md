@@ -10,6 +10,10 @@ Develop a portion of a financial system backend that manages transactions for a 
 - [Mongodb](https://www.mongodb.com/) is a source-available cross-platform document-oriented database program. Classified as a NoSQL database program, MongoDB uses JSON-like documents with optional schemas
 - [Docker](https://www.docker.com/) is a software platform that allows you to build, test, and deploy applications quickly using containers.
 
+## Database Design
+
+![image](./assets/dbdesign.png)
+
 ## How to Run
 
 - Clone the repository by running `git clone https://github.com/alahirajeffrey/learnlyapp-backend-dev-assignment.git`
