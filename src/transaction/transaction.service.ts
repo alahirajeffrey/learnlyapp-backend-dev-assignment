@@ -1,11 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
-import { DepositAndWithdrawalDto, TransferDto } from 'src/dtos/transaction.dto';
-import { Account } from 'src/schemas/account.schema';
-import { Deposit } from 'src/schemas/deposit.schema';
-import { Transfer } from 'src/schemas/transfer.schema';
-import { Withdrawal } from 'src/schemas/withdrawal.schema';
+import { DepositAndWithdrawalDto, TransferDto } from '../dtos/transaction.dto';
+import { Account } from '../schemas/account.schema';
+import { Deposit } from '../schemas/deposit.schema';
+import { Transfer } from '../schemas/transfer.schema';
+import { Withdrawal } from '../schemas/withdrawal.schema';
 
 @Injectable()
 export class TransactionService {
