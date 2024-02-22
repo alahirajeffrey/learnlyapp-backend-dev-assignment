@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 // import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -13,12 +19,13 @@ import {
 import { User } from '../schemas/user.schema';
 import * as bcrypt from 'bcrypt';
 import { Role } from '../common/enums/roles.enum';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
-    // private readonly configService: ConfigService,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     private jwtService: JwtService,
   ) {}
 
@@ -48,6 +55,7 @@ export class AuthService {
 
       return newUser;
     } catch (error) {
+      this.logger.error(error);
       throw new HttpException(
         error.message,
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -92,6 +100,7 @@ export class AuthService {
         data: { accessToken: accessToken },
       };
     } catch (error) {
+      this.logger.error(error);
       throw new HttpException(
         error.message,
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -130,6 +139,7 @@ export class AuthService {
         message: 'Password successfully changed',
       };
     } catch (error) {
+      this.logger.error(error);
       throw new HttpException(
         error.message,
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -158,6 +168,7 @@ export class AuthService {
         message: 'User updated successfully',
       };
     } catch (error) {
+      this.logger.error(error);
       throw new HttpException(
         error.message,
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -191,6 +202,7 @@ export class AuthService {
 
       return { statusCode: HttpStatus.OK, message: 'User upgraded to admin' };
     } catch (error) {
+      this.logger.error(error);
       throw new HttpException(
         error.message,
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,

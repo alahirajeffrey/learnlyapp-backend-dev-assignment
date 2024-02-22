@@ -1,7 +1,9 @@
 import {
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -12,6 +14,7 @@ import { Account } from '../schemas/account.schema';
 import { Deposit } from '../schemas/deposit.schema';
 import { Transfer } from '../schemas/transfer.schema';
 import { Withdrawal } from '../schemas/withdrawal.schema';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
 @Injectable()
 export class AccountService {
@@ -21,12 +24,13 @@ export class AccountService {
     @InjectModel(Withdrawal.name) private withdrawalModel: Model<Withdrawal>,
     @InjectModel(Transfer.name) private transferModel: Model<Transfer>,
     private readonly utilService: UtilService,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
 
   /**
-   *
-   * @param email
-   * @returns
+   * create account
+   * @param email : user's email
+   * @returns : new account
    */
   async createAccount(email: string) {
     try {
@@ -39,8 +43,9 @@ export class AccountService {
         accountNumber: accountNumber,
       });
 
-      return { statusCode: HttpStatus.CREATED, data: newAccount };
+      return newAccount;
     } catch (error) {
+      this.logger.error(error);
       throw new HttpException(
         error.message,
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -59,6 +64,7 @@ export class AccountService {
 
       return account;
     } catch (error) {
+      this.logger.error(error);
       throw new HttpException(
         error.message,
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -102,6 +108,7 @@ export class AccountService {
         pageTotal: pageTotal,
       };
     } catch (error) {
+      this.logger.error(error);
       throw new HttpException(
         error.message,
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -145,6 +152,7 @@ export class AccountService {
         pageTotal: pageTotal,
       };
     } catch (error) {
+      this.logger.error(error);
       throw new HttpException(
         error.message,
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -184,6 +192,7 @@ export class AccountService {
 
       return { transfers, pageTotal: pageTotal };
     } catch (error) {
+      this.logger.error(error);
       throw new HttpException(
         error.message,
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,

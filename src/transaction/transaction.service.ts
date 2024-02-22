@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { DepositAndWithdrawalDto, TransferDto } from '../dtos/transaction.dto';
@@ -6,6 +12,7 @@ import { Account } from '../schemas/account.schema';
 import { Deposit } from '../schemas/deposit.schema';
 import { Transfer } from '../schemas/transfer.schema';
 import { Withdrawal } from '../schemas/withdrawal.schema';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
 @Injectable()
 export class TransactionService {
@@ -15,6 +22,7 @@ export class TransactionService {
     @InjectModel(Transfer.name) private transferModel: Model<Transfer>,
     @InjectModel(Withdrawal.name) private withdrawalModel: Model<Withdrawal>,
     @InjectConnection() private readonly connection: mongoose.Connection,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
 
   /**
@@ -55,6 +63,7 @@ export class TransactionService {
     } catch (error) {
       // abort transaction and rollback changes if error occurs
       await session.abortTransaction();
+      this.logger.error(error);
       throw new HttpException(
         error.message,
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -127,6 +136,7 @@ export class TransactionService {
     } catch (error) {
       // abort transaction and rollback changes if error occurs
       await session.abortTransaction();
+      this.logger.error(error);
       throw new HttpException(
         error.message,
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -180,6 +190,7 @@ export class TransactionService {
     } catch (error) {
       // abort transaction and rollback changes if error occurs
       await session.abortTransaction();
+      this.logger.error(error);
       throw new HttpException(
         error.message,
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,
